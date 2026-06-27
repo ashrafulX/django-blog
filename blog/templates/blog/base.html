@@ -1,0 +1,101 @@
+{% load static extras %}
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GblNews{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#fcfcfc] text-gray-900 flex flex-col min-h-screen">
+
+    <div class="bg-white">
+        <div class="max-w-7xl mx-auto px-4 py-8 flex justify-between items-center">
+            <div class="flex space-x-3 text-sm">
+                <a href="#" class="w-8 h-8 rounded-full bg-[#3b5998] text-white flex items-center justify-center font-bold hover:opacity-80 transition">f</a>
+                <a href="#" class="w-8 h-8 rounded-full bg-[#cd201f] text-white flex items-center justify-center font-bold hover:opacity-80 transition">y</a>
+                <a href="#" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold hover:opacity-80 transition">x</a>
+            </div>
+            
+            <a href="/" class="text-5xl md:text-6xl font-extrabold tracking-tighter">
+                <span class="text-black">Gbl</span><span class="text-red-600">News</span>
+            </a>
+            
+            <div>
+                <a href="#" class="border border-gray-300 px-5 py-2 text-sm font-bold hover:bg-gray-50 transition shadow-sm rounded-sm">ইংরেজি</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="border-t-[3px] border-red-600"></div>
+
+    <nav class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-14">
+            <ul class="flex space-x-6 text-[17px] font-bold text-gray-800">
+                <li>
+                    <a href="/" class="block py-4 hover:text-red-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    </a>
+                </li>
+                
+                {% get_menu_categories as menu_categories %}
+                {% for cat in menu_categories %}
+                    <li><a href="{% url 'blog:category' slug=cat.slug %}" class="block py-3 hover:text-red-600 transition">{{ cat.name }}</a></li>
+                {% endfor %}
+                
+                <li><a href="#" class="block py-3 hover:text-red-600 transition">অন্যান্য</a></li>
+            </ul>
+
+            <form action="{% url 'blog:search' %}" method="get" class="flex items-center">
+                <input type="text" name="q" placeholder="খুঁজুন..." class="border-b border-gray-300 text-sm px-2 py-1 focus:outline-none focus:border-red-600 w-32 bg-transparent outline-none">
+                <button type="submit" class="text-black hover:text-red-600 font-bold p-2 ml-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-black text-gray-300 pt-12 pb-4 mt-12">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div class="col-span-1 md:col-span-1">
+                <a href="/" class="text-3xl font-extrabold tracking-tight mb-4 inline-block">
+                    <span class="text-white">Gbl</span><span class="text-red-600">News</span>
+                </a>
+                <p class="text-sm text-gray-400 leading-relaxed">সংবাদ ও বিশ্লেষণ নিয়ে বাংলা ভাষায় সবচেয়ে নির্ভরযোগ্য নিউজ পোর্টাল।</p>
+            </div>
+            <div>
+                <ul class="space-y-2 text-sm font-semibold">
+                    <li><a href="#" class="hover:text-white">About us</a></li>
+                    <li><a href="#" class="hover:text-white">Privacy & Policy</a></li>
+                    <li><a href="#" class="hover:text-white">হযবরল</a></li>
+                </ul>
+            </div>
+            <div>
+                <ul class="space-y-2 text-sm font-semibold">
+                    <li><a href="#" class="hover:text-white">About us</a></li>
+                    <li><a href="#" class="hover:text-white">Privacy & Policy</a></li>
+                    <li><a href="#" class="hover:text-white">হযবরল</a></li>
+                </ul>
+            </div>
+            <div>
+                <ul class="space-y-2 text-sm font-semibold">
+                    <li><a href="#" class="hover:text-white">যোগাযোগ</a></li>
+                    <li><a href="#" class="hover:text-white">নীতিমালা</a></li>
+                    <li><a href="#" class="hover:text-white">বিজ্ঞাপন</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="bg-[#b91c1c] text-center py-3 text-xs text-white font-semibold">
+            &copy; ২০২৪-২০২৬ সর্বস্বত্ব GblNews কর্তৃক সংরক্ষিত।
+        </div>
+    </footer>
+</body>
+</html>

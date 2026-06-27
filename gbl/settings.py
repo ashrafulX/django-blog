@@ -25,12 +25,17 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    ".ngrok-free.dev",
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +44,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'blog',
+    "django_ckeditor_5",
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -117,3 +125,100 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR/'static',
+]
+
+
+CKEDITOR_5_CONFIGS = {
+    "extends": {
+        "toolbar": [
+            "heading", 
+            "|",
+            "outdent", "indent", 
+            "|",
+            "bold", "italic", "underline", "strikethrough", "subscript", "superscript", 
+            "|",
+            "alignment", 
+            "|",
+            "fontFamily", "fontSize", "fontColor", "fontBackgroundColor", 
+            "|",
+            "bulletedList", "numberedList", "todoList", 
+            "|",
+            "link", "insertImage", "mediaEmbed", 
+            "insertTable", "blockQuote", "horizontalLine", "codeBlock", 
+            "|",
+            "removeFormat", "sourceEditing", "findAndReplace", 
+            "|",
+            "undo", "redo"
+        ],
+        # কাস্টম ফন্ট ফ্যামিলি (এখানে আপনার ওয়েবসাইটের Hind Siliguri এবং অন্যান্য বাংলা ফন্ট যুক্ত করা হয়েছে)
+        "fontFamily": {
+            "options": [
+                "default",
+                "Hind Siliguri, sans-serif",
+                "SolaimanLipi, Arial, sans-serif",
+                "Kalpurush, Arial, sans-serif",
+                "Arial, Helvetica, sans-serif",
+                "Courier New, Courier, monospace",
+                "Times New Roman, Times, serif"
+            ],
+            "supportAllValues": True
+        },
+        # কাস্টম ফন্ট সাইজ (পিক্সেল অনুযায়ী)
+        "fontSize": {
+            "options": [
+                9,
+                11,
+                13,
+                "default",
+                16,
+                18,
+                20,
+                22,
+                24,
+                28,
+                32,
+                36
+            ],
+            "supportAllValues": True
+        },
+        "image": {
+            "toolbar": [
+                "imageTextAlternative",
+                "toggleImageCaption",
+                "|",
+                "imageStyle:inline",
+                "imageStyle:wrapText",
+                "imageStyle:breakText",
+                "imageStyle:alignLeft",
+                "imageStyle:alignRight",
+                "imageStyle:alignCenter",
+            ],
+        },
+        "table": {
+            "contentToolbar": [
+                "tableColumn", "tableRow", "mergeTableCells", "tableProperties", "tableCellProperties"
+            ]
+        },
+        "heading": {
+            "options": [
+                {"model": "paragraph", "title": "Paragraph", "class": "ck-heading_paragraph"},
+                {"model": "heading1", "view": "h1", "title": "Heading 1", "class": "ck-heading_heading1"},
+                {"model": "heading2", "view": "h2", "title": "Heading 2", "class": "ck-heading_heading2"},
+                {"model": "heading3", "view": "h3", "title": "Heading 3", "class": "ck-heading_heading3"},
+            ]
+        },
+        "ckfilemanager": {
+            "uploadUrl": "/ckeditor5/image_upload/",
+        }
+    }
+}
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ngrok-free.dev",
+]
