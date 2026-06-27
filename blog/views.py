@@ -4,13 +4,10 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django.views.generic import DetailView, ListView
-
 from .models import Advertisement, Blog, Category, Tag
 
 
-# ==========================================
 # Helpers
-# ==========================================
 
 def _get_active_ads(*positions):
     qs = Advertisement.objects.filter(
@@ -41,9 +38,7 @@ def _list_qs():
     )
 
 
-# ==========================================
 # 1. Home View
-# ==========================================
 
 @method_decorator(cache_page(60 * 5), name="dispatch")
 @method_decorator(vary_on_cookie, name="dispatch")
@@ -76,9 +71,8 @@ class HomeView(ListView):
         return context
 
 
-# ==========================================
 # 2. Blog Detail View
-# ==========================================
+
 
 class BlogDetailView(DetailView):
     model = Blog
@@ -119,9 +113,8 @@ class BlogDetailView(DetailView):
         return context
 
 
-# ==========================================
 # 3. Category Post List View
-# ==========================================
+
 
 class CategoryPostListView(ListView):
     model = Blog
@@ -148,9 +141,7 @@ class CategoryPostListView(ListView):
         return context
 
 
-# ==========================================
 # 4. Tag Post List View
-# ==========================================
 
 class TagPostListView(ListView):
     model = Blog
@@ -174,9 +165,7 @@ class TagPostListView(ListView):
         return context
 
 
-# ==========================================
 # 5. Search View
-# ==========================================
 
 class SearchView(ListView):
     model = Blog
@@ -206,10 +195,8 @@ class SearchView(ListView):
         context["result_count"] = self.get_queryset().count()
         return context
 
-
-# ==========================================
 # 6. Featured Posts View
-# ==========================================
+
 
 class FeaturedPostListView(ListView):
     model = Blog
@@ -221,9 +208,7 @@ class FeaturedPostListView(ListView):
         return _list_qs().filter(is_featured=True)
 
 
-# ==========================================
 # 7. Breaking News View
-# ==========================================
 
 class BreakingNewsListView(ListView):
     model = Blog

@@ -152,7 +152,7 @@ CKEDITOR_5_CONFIGS = {
             "|",
             "undo", "redo"
         ],
-        # কাস্টম ফন্ট ফ্যামিলি (এখানে আপনার ওয়েবসাইটের Hind Siliguri এবং অন্যান্য বাংলা ফন্ট যুক্ত করা হয়েছে)
+
         "fontFamily": {
             "options": [
                 "default",
@@ -165,7 +165,7 @@ CKEDITOR_5_CONFIGS = {
             ],
             "supportAllValues": True
         },
-        # কাস্টম ফন্ট সাইজ (পিক্সেল অনুযায়ী)
+       
         "fontSize": {
             "options": [
                 9,
