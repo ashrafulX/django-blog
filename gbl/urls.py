@@ -22,6 +22,8 @@ from debug_toolbar.toolbar import debug_toolbar_urls
 urlpatterns = [
     path("admin/",  admin.site.urls),
     path("",        include("blog.urls", namespace="blog")),
+    # path("",        include("core.urls", namespace="core")),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
 ]+ debug_toolbar_urls()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

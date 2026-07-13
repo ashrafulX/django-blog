@@ -1,80 +1,392 @@
 {% extends 'blog/base.html' %}
 {% load static %}
+
+{% block title %}{{ post.title }} - GblNews{% endblock %}
+
+{% block meta_description %}{{ post.meta_description|default:post.short_description|truncatewords:30 }}{% endblock %}
+{% block meta_keywords %}{{ post.meta_keywords }}{% endblock %}
+{% block og_title %}{{ post.seo_title|default:post.title }}{% endblock %}
+{% block og_description %}{{ post.short_description|truncatewords:30 }}{% endblock %}
+
 {% block content %}
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
+    
+    {# Main Article Content #}
     <article class="lg:col-span-8">
         
-        <nav class="text-sm font-bold mb-4">
-            <a href="/" class="text-gray-500 hover:text-red-600">হোম</a>
-            <span class="mx-2 text-gray-300">|</span>
-            <a href="{% url 'blog:category' slug=post.category.slug %}" class="text-red-600 hover:underline">{{ post.category.name }}</a>
+        {# Breadcrumb Navigation #}
+        <nav class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-6 flex items-center gap-2" aria-label="Breadcrumb">
+            <a href="{% url 'blog:home' %}" class="hover:text-red-600 dark:hover:text-red-500 transition-colors duration-200">হোম</a>
+            <span class="text-gray-300 dark:text-gray-600">/</span>
+            <a href="{% url 'blog:category' slug=post.category.slug %}" class="hover:text-red-600 dark:hover:text-red-500 transition-colors duration-200">{{ post.category.name }}</a>
+            <span class="text-gray-300 dark:text-gray-600">/</span>
+            <span class="text-red-600 dark:text-red-500">{{ post.title|truncatewords:5 }}</span>
         </nav>
 
-        <h1 class="text-3xl md:text-[40px] font-extrabold leading-tight mb-4 text-gray-900">{{ post.title }}</h1>
-        <h2 class="text-xl text-gray-600 mb-6 leading-relaxed">{{ post.short_description }}</h2>
-        
-        <div class="flex items-center justify-between border-y border-gray-200 py-3 mb-8">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-600 text-lg">
+        {# Article Title #}
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-4 text-gray-900 dark:text-white">
+            {{ post.title }}
+        </h1>
+
+        {# Subtitle/Short Description #}
+        {% if post.short_description %}
+        <h2 class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-semibold mb-6 leading-relaxed">
+            {{ post.short_description }}
+        </h2>
+        {% endif %}
+
+        {# Author and Meta Info #}
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-md">
                     {{ post.author_name|first|upper }}
                 </div>
                 <div>
-                    <div class="font-bold text-gray-900 text-sm">{{ post.author_name }}</div>
-                    <div class="text-xs text-gray-500 font-medium">প্রকাশ: {{ post.published_at|date:"d M, Y" }}</div>
+                    <div class="font-bold text-gray-900 dark:text-white">{{ post.author_name }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        প্রকাশ: <time datetime="{{ post.published_at|date:'Y-m-dTH:i:s' }}">{{ post.published_at|date:"d M, Y" }}</time>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 text-sm font-semibold text-gray-600 dark:text-gray-400">
+                <div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    {{ post.views }} ভিউ
+                </div>
+                
+                <div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ post.reading_time }} মিনিট
                 </div>
             </div>
         </div>
 
-        <figure class="mb-8 relative">
-            {% if post.featured_image %}
-                <img src="{{ post.featured_image.url }}" alt="{{ post.featured_image_alt }}" class="w-full h-auto object-cover">
-            {% else %}
-                <img src="{% static 'images/default.png' %}" alt="Default Image" class="w-full h-auto object-cover">
-            {% endif %}
-            
-            {% if post.image_caption %}
-                <figcaption class="text-sm text-gray-500 mt-2 text-center">{{ post.image_caption }}</figcaption>
-            {% endif %}
-        </figure>
-
-        <div class="prose prose-lg max-w-none text-gray-800 leading-loose prose-a:text-red-600 prose-headings:font-bold prose-img:mx-auto">
-            {{ post.content|safe }}
-        </div>
-
-        {% if post.tags.all %}
-        <div class="mt-10 pt-4 border-t border-gray-200 flex flex-wrap items-center gap-2">
-            <span class="font-bold text-gray-900 mr-2">ট্যাগসমূহ:</span>
-            {% for tag in post.tags.all %}
-                <a href="{% url 'blog:tag' slug=tag.slug %}" class="bg-gray-100 text-gray-700 px-3 py-1 text-sm font-semibold hover:bg-red-600 hover:text-white transition duration-200">
-                    {{ tag.name }}
-                </a>
-            {% endfor %}
+        {# Top Advertisement #}
+        {% if ad_article_top %}
+        <div class="mb-8 p-4 bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+            {% include 'blog/includes/ad_renderer.html' with ad=ad_article_top %}
         </div>
         {% endif %}
-    </article>
 
-    <aside class="lg:col-span-4">
-        <div class="mb-8">
-            <h3 class="text-lg font-bold text-gray-900 border-b-2 border-black pb-2 mb-4">আরও পড়ুন</h3>
-            <div class="flex flex-col space-y-4">
+        {# Featured Image #}
+        {% if post.featured_image %}
+        <figure class="mb-8">
+            <img 
+                src="{{ post.featured_image.url }}" 
+                alt="{{ post.featured_image_alt|default:post.title }}"
+                class="w-full h-auto object-cover rounded-lg shadow-lg"
+            >
+            {% if post.image_caption %}
+            <figcaption class="text-sm text-gray-600 dark:text-gray-400 text-center mt-3 italic">
+                {{ post.image_caption }}
+            </figcaption>
+            {% endif %}
+        </figure>
+        {% endif %}
+
+        {# Article Content with COMPREHENSIVE Dark Mode Support #}
+        <div class="prose prose-lg dark:prose-invert max-w-none mb-10 text-gray-800 dark:text-gray-200 leading-relaxed">
+            <div class="ckeditor-content">
+                {{ post.content|safe }}
+            </div>
+        </div>
+
+        {# CRITICAL: Comprehensive Dark Mode Styling for All Content #}
+        <style>
+            /* ===== HEADINGS ===== */
+            .ckeditor-content h1,
+            .ckeditor-content h2,
+            .ckeditor-content h3,
+            .ckeditor-content h4,
+            .ckeditor-content h5,
+            .ckeditor-content h6 {
+                @apply font-bold mt-6 mb-4 text-gray-900 dark:text-white;
+            }
+            
+            .ckeditor-content h1 { @apply text-3xl; }
+            .ckeditor-content h2 { @apply text-2xl; }
+            .ckeditor-content h3 { @apply text-xl; }
+            .ckeditor-content h4 { @apply text-lg; }
+            .ckeditor-content h5 { @apply text-base; }
+            .ckeditor-content h6 { @apply text-sm; }
+            
+            /* ===== PARAGRAPHS & TEXT ===== */
+            .ckeditor-content p {
+                @apply mb-4 leading-relaxed text-gray-800 dark:text-gray-200;
+            }
+            
+            .ckeditor-content strong,
+            .ckeditor-content b {
+                @apply font-bold text-gray-900 dark:text-white;
+            }
+            
+            .ckeditor-content em,
+            .ckeditor-content i {
+                @apply italic text-gray-800 dark:text-gray-200;
+            }
+            
+            /* ===== LINKS ===== */
+            .ckeditor-content a {
+                @apply text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 underline transition-colors duration-200;
+            }
+            
+            /* ===== LISTS ===== */
+            .ckeditor-content ul,
+            .ckeditor-content ol {
+                @apply ml-6 mb-4;
+            }
+            
+            .ckeditor-content li {
+                @apply mb-2 text-gray-800 dark:text-gray-200;
+            }
+            
+            .ckeditor-content ul li {
+                @apply list-disc;
+            }
+            
+            .ckeditor-content ol li {
+                @apply list-decimal;
+            }
+            
+            /* ===== BLOCKQUOTES ===== */
+            .ckeditor-content blockquote {
+                @apply border-l-4 border-red-600 dark:border-red-500 pl-4 italic text-gray-700 dark:text-gray-300 my-4 bg-gray-100 dark:bg-gray-800 py-2 px-4 rounded;
+            }
+            
+            /* ===== CODE & PRE ===== */
+            .ckeditor-content code {
+                @apply bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1 rounded font-mono text-sm;
+            }
+            
+            .ckeditor-content pre {
+                @apply bg-gray-900 dark:bg-gray-950 text-gray-100 dark:text-gray-200 p-4 rounded-lg overflow-x-auto mb-4 border border-gray-700 dark:border-gray-800;
+            }
+            
+            .ckeditor-content pre code {
+                @apply bg-transparent text-gray-100 dark:text-gray-200 px-0 py-0;
+            }
+            
+            /* ===== IMAGES ===== */
+            .ckeditor-content img {
+                @apply max-w-full h-auto rounded-lg shadow-md my-4 bg-gray-100 dark:bg-gray-800;
+            }
+            
+            /* ===== TABLES ===== */
+            .ckeditor-content table {
+                @apply w-full border-collapse my-4 border border-gray-300 dark:border-gray-700;
+            }
+            
+            .ckeditor-content th,
+            .ckeditor-content td {
+                @apply border border-gray-300 dark:border-gray-700 px-4 py-2 text-gray-800 dark:text-gray-200;
+            }
+            
+            .ckeditor-content th {
+                @apply bg-gray-200 dark:bg-gray-800 font-semibold text-gray-900 dark:text-white;
+            }
+            
+            .ckeditor-content tbody tr:nth-child(even) {
+                @apply bg-gray-50 dark:bg-gray-900/50;
+            }
+            
+            .ckeditor-content tbody tr:hover {
+                @apply bg-gray-100 dark:bg-gray-800/50;
+            }
+            
+            /* ===== HORIZONTAL RULE ===== */
+            .ckeditor-content hr {
+                @apply border-gray-300 dark:border-gray-700 my-4;
+            }
+            
+            /* ===== METADATA & CUSTOM ELEMENTS ===== */
+            .ckeditor-content .text-gray,
+            .ckeditor-content .muted {
+                @apply text-gray-700 dark:text-gray-300;
+            }
+            
+            .ckeditor-content .text-dark {
+                @apply text-gray-900 dark:text-white;
+            }
+            
+            /* ===== OEMBED & MEDIA ===== */
+            .ckeditor-content oembed,
+            .ckeditor-content iframe {
+                @apply rounded-lg shadow-md my-4 max-w-full;
+            }
+            
+            /* ===== SPANS & INLINE ELEMENTS ===== */
+            .ckeditor-content span {
+                @apply text-gray-800 dark:text-gray-200;
+            }
+            
+            /* ===== DEFINITION LISTS ===== */
+            .ckeditor-content dt {
+                @apply font-bold text-gray-900 dark:text-white mt-3;
+            }
+            
+            .ckeditor-content dd {
+                @apply ml-4 mb-2 text-gray-800 dark:text-gray-200;
+            }
+            
+            /* ===== MARKED/HIGHLIGHTED TEXT ===== */
+            .ckeditor-content mark {
+                @apply bg-yellow-200 dark:bg-yellow-800 text-gray-900 dark:text-white px-1;
+            }
+            
+            /* ===== ALIGNMENT UTILITIES ===== */
+            .ckeditor-content .text-center {
+                @apply text-center;
+            }
+            
+            .ckeditor-content .text-right {
+                @apply text-right;
+            }
+            
+            .ckeditor-content .text-left {
+                @apply text-left;
+            }
+        </style>
+
+        {# Bottom Advertisement #}
+        {% if ad_article_bottom %}
+        <div class="mb-8 p-4 bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+            {% include 'blog/includes/ad_renderer.html' with ad=ad_article_bottom %}
+        </div>
+        {% endif %}
+
+        {# Tags Section #}
+        {% if post.tags.all %}
+        <div class="my-10 py-6 border-t border-b border-gray-200 dark:border-gray-700">
+            <div class="mb-4">
+                <span class="font-bold text-gray-900 dark:text-white block mb-3">ট্যাগসমূহ:</span>
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in post.tags.all %}
+                    <a 
+                        href="{% url 'blog:tag' slug=tag.slug %}" 
+                        class="bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-red-600 hover:text-white dark:hover:bg-red-700 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 inline-flex items-center gap-2"
+                        rel="tag"
+                    >
+                        <span>#</span>{{ tag.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# Related Posts #}
+        {% if related_posts %}
+        <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                সম্পর্কিত সংবাদ
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% for related in related_posts %}
-                <a href="{% url 'blog:detail' slug=related.slug %}" class="flex space-x-3 group">
-                    <div class="w-24 h-16 flex-shrink-0 overflow-hidden">
+                <article class="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700">
+                    <a href="{% url 'blog:detail' slug=related.slug %}" class="block overflow-hidden h-40 bg-gray-200 dark:bg-gray-700">
                         {% if related.featured_image %}
-                            <img src="{{ related.featured_image.url }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500" alt="">
+                            <img 
+                                src="{{ related.featured_image.url }}" 
+                                alt="{{ related.featured_image_alt|default:related.title }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            >
                         {% else %}
-                            <img src="{% static 'images/default.png' %}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500" alt="">
+                            <img 
+                                src="{% static 'images/default.png' %}" 
+                                alt="Default"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            >
                         {% endif %}
+                    </a>
+                    
+                    <div class="p-4">
+                        <h4 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-200 line-clamp-2 mb-2">
+                            <a href="{% url 'blog:detail' slug=related.slug %}">{{ related.title }}</a>
+                        </h4>
+                        <div class="text-xs text-gray-500 dark:text-gray-500">{{ related.published_at|date:"d M, Y" }}</div>
                     </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-gray-800 group-hover:text-red-600 transition leading-snug">{{ related.title }}</h4>
-                    </div>
-                </a>
-                <hr class="border-gray-100 last:hidden">
+                </article>
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
+
+    </article>
+
+    {# Sidebar #}
+    <aside class="lg:col-span-4">
+        
+        {# About Section #}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8 border border-gray-200 dark:border-gray-700 sticky top-20">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 pb-3 border-b-2 border-red-600 dark:border-red-500">
+                লেখক সম্পর্কে
+            </h3>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                    {{ post.author_name|first|upper }}
+                </div>
+                
+                <h4 class="font-bold text-gray-900 dark:text-white mb-2">{{ post.author_name }}</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    একজন অভিজ্ঞ সাংবাদিক এবং গবেষক যিনি গভীর বিশ্লেষণ প্রদান করেন।
+                </p>
+            </div>
+        </div>
+
+        {# Sidebar Advertisement #}
+        {% if ad_sidebar %}
+        <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 mb-8 border border-gray-200 dark:border-gray-800">
+            {% include 'blog/includes/ad_renderer.html' with ad=ad_sidebar %}
+        </div>
+        {% endif %}
+
+        {# Most Viewed Posts #}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 pb-3 border-b-2 border-red-600 dark:border-red-500">
+                জনপ্রিয় সংবাদ
+            </h3>
+            
+            <div class="space-y-4">
+                {% for related in related_posts|slice:"0:3" %}
+                <a href="{% url 'blog:detail' slug=related.slug %}" class="flex gap-3 group">
+                    <div class="w-16 h-12 flex-shrink-0 rounded overflow-hidden bg-gray-200 dark:bg-gray-700">
+                        {% if related.featured_image %}
+                            <img 
+                                src="{{ related.featured_image.url }}" 
+                                alt="{{ related.featured_image_alt|default:related.title }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            >
+                        {% else %}
+                            <img 
+                                src="{% static 'images/default.png' %}" 
+                                alt="Default"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            >
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-bold leading-snug text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-200 line-clamp-2">
+                            {{ related.title }}
+                        </h4>
+                        <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{ related.published_at|date:"d M" }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
     </aside>
+
 </div>
+
 {% endblock %}

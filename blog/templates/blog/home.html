@@ -1,77 +1,257 @@
 {% extends 'blog/base.html' %}
 {% load static %}
+
+{% block title %}হোম - GblNews{% endblock %}
+
 {% block content %}
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b border-gray-200 pb-8 mb-8">
-    
-    <div class="lg:col-span-8 group">
-        {% if featured_posts %}
-        {% with main_post=featured_posts.0 %}
-        <a href="{% url 'blog:detail' slug=main_post.slug %}" class="block overflow-hidden mb-4 relative">
-            {% if main_post.featured_image %}
-                <img src="{{ main_post.featured_image.url }}" class="w-full aspect-[16/9] object-cover transform group-hover:scale-105 transition duration-500">
-            {% else %}
-                <img src="{% static 'images/default.png' %}" class="w-full aspect-[16/9] object-cover transform group-hover:scale-105 transition duration-500">
-            {% endif %}
-        </a>
-        <div class="text-red-600 font-bold text-sm mb-2 flex items-center">
-            {{ main_post.category.name }}
-            <span class="mx-2 text-gray-300">•</span>
-        </div>
-        <h1 class="text-4xl font-extrabold leading-tight mb-3 text-gray-900 group-hover:text-red-600 transition">
-            <a href="{% url 'blog:detail' slug=main_post.slug %}">{{ main_post.title }}</a>
-        </h1>
-        <p class="text-gray-700 text-lg leading-relaxed">{{ main_post.short_description|truncatechars:180 }}</p>
-        {% endwith %}
-        {% endif %}
-    </div>
-
-    <div class="lg:col-span-4 flex flex-col space-y-6">
-        {% for post in latest_posts|slice:"1:5" %}
-        <article class="flex space-x-4 group">
-            <div class="w-32 flex-shrink-0 overflow-hidden h-20">
-                <a href="{% url 'blog:detail' slug=post.slug %}">
-                    {% if post.featured_image %}
-                        <img src="{{ post.featured_image.url }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+{# Featured Section #}
+<div class="mb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {# Main Featured Post #}
+        <div class="lg:col-span-8">
+            {% if featured_posts %}
+            {% with main_post=featured_posts.0 %}
+            <article class="group">
+                <a href="{% url 'blog:detail' slug=main_post.slug %}" class="block overflow-hidden rounded-lg mb-6 relative h-96 bg-gray-200 dark:bg-gray-800">
+                    {% if main_post.featured_image %}
+                        <img 
+                            src="{{ main_post.featured_image.url }}" 
+                            alt="{{ main_post.featured_image_alt }}"
+                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                        >
                     {% else %}
-                        <img src="{% static 'images/default.png' %}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+                        <img 
+                            src="{% static 'images/default.png' %}" 
+                            alt="Featured Post"
+                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                        >
                     {% endif %}
+                    
+                    {# Dark Overlay #}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    
+                    {# Category Badge #}
+                    <div class="absolute top-4 left-4">
+                        <span class="bg-red-600 dark:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded-full">
+                            {{ main_post.category.name }}
+                        </span>
+                    </div>
                 </a>
+                
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-4 text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-200">
+                    <a href="{% url 'blog:detail' slug=main_post.slug %}">{{ main_post.title }}</a>
+                </h1>
+                
+                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
+                    {{ main_post.short_description|truncatechars:200 }}
+                </p>
+                
+                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-full bg-red-600 dark:bg-red-700 text-white flex items-center justify-center font-bold">
+                            {{ main_post.author_name|first|upper }}
+                        </div>
+                        <span class="font-semibold">{{ main_post.author_name }}</span>
+                    </div>
+                    <span class="text-gray-400 dark:text-gray-600">•</span>
+                    <span>{{ main_post.published_at|date:"d M, Y" }}</span>
+                    <span class="text-gray-400 dark:text-gray-600">•</span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        {{ main_post.views }}
+                    </span>
+                </div>
+            </article>
+            {% endwith %}
+            {% endif %}
+        </div>
+
+        {# Sidebar Latest Posts #}
+        <div class="lg:col-span-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 pb-3 border-b-2 border-red-600 dark:border-red-500">
+                    সর্বশেষ সংবাদ
+                </h2>
+                
+                <div class="space-y-4">
+                    {% for post in latest_posts|slice:"1:6" %}
+                    <article class="pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0 group">
+                        <div class="flex gap-4">
+                            <a href="{% url 'blog:detail' slug=post.slug %}" class="flex-shrink-0 w-20 h-16 rounded overflow-hidden bg-gray-200 dark:bg-gray-700">
+                                {% if post.featured_image %}
+                                    <img 
+                                        src="{{ post.featured_image.url }}" 
+                                        alt="{{ post.title }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    >
+                                {% else %}
+                                    <img 
+                                        src="{% static 'images/default.png' %}" 
+                                        alt="Default"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    >
+                                {% endif %}
+                            </a>
+                            
+                            <div class="flex-1 min-w-0">
+                                <div class="text-red-600 dark:text-red-500 text-xs font-bold mb-1">
+                                    {{ post.category.name }}
+                                </div>
+                                <h3 class="text-sm font-bold leading-snug text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-200 line-clamp-2">
+                                    <a href="{% url 'blog:detail' slug=post.slug %}">{{ post.title }}</a>
+                                </h3>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="flex-1">
-                <div class="text-red-600 text-xs font-bold mb-1">{{ post.category.name }}</div>
-                <h3 class="text-[15px] font-bold leading-snug text-gray-900 group-hover:text-red-600 transition">
+        </div>
+    </div>
+</div>
+
+{# Breaking News Section #}
+{% if breaking_news %}
+<div class="mb-12 bg-red-50 dark:bg-red-900/10 rounded-lg p-6 border-l-4 border-red-600 dark:border-red-500">
+    <div class="flex items-center gap-2 mb-6">
+        <span class="inline-block bg-red-600 dark:bg-red-700 text-white font-bold px-3 py-1 rounded text-sm animate-pulse">
+            ⚠️ ব্রেকিং নিউজ
+        </span>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for post in breaking_news %}
+        <article class="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700">
+            <a href="{% url 'blog:detail' slug=post.slug %}" class="block overflow-hidden h-32 bg-gray-200 dark:bg-gray-700">
+                {% if post.featured_image %}
+                    <img 
+                        src="{{ post.featured_image.url }}" 
+                        alt="{{ post.title }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    >
+                {% else %}
+                    <img 
+                        src="{% static 'images/default.png' %}" 
+                        alt="Default"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    >
+                {% endif %}
+            </a>
+            
+            <div class="p-4">
+                <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-200 line-clamp-2">
                     <a href="{% url 'blog:detail' slug=post.slug %}">{{ post.title }}</a>
                 </h3>
+                <div class="text-xs text-gray-500 dark:text-gray-500 mt-2">{{ post.published_at|date:"d M, Y" }}</div>
             </div>
         </article>
-        {% if not forloop.last %}<hr class="border-gray-200">{% endif %}
         {% endfor %}
     </div>
 </div>
+{% endif %}
 
-<div class="mb-6">
-    <h2 class="text-xl font-bold text-red-600 inline-block border-b-2 border-red-600 pb-1">সর্বশেষ সংবাদ</h2>
-    <div class="border-b border-gray-300 -mt-[1px]"></div>
+{# Advertisement #}
+{% if ad_home_left %}
+<div class="mb-12">
+    <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-800">
+        {% include 'blog/includes/ad_renderer.html' with ad=ad_home_left %}
+    </div>
 </div>
+{% endif %}
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for post in latest_posts %}
-    <article class="group bg-white p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
-        <a href="{% url 'blog:detail' slug=post.slug %}" class="block overflow-hidden h-44 mb-3">
-            {% if post.featured_image %}
-                <img src="{{ post.featured_image.url }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-            {% else %}
-                <img src="{% static 'images/default.png' %}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-            {% endif %}
+{# Latest Posts Section #}
+<div class="mb-12">
+    <div class="flex items-center gap-3 mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+            সর্বশেষ সংবাদ
+        </h2>
+        <div class="flex-grow border-b-2 border-gray-200 dark:border-gray-700"></div>
+        <a href="{% url 'blog:home' %}" class="text-red-600 dark:text-red-500 font-semibold hover:text-red-700 dark:hover:text-red-400 transition-colors duration-200">
+            সব দেখুন →
         </a>
-        <div class="text-red-600 font-bold text-xs uppercase mb-1">{{ post.category.name }}</div>
-        <h3 class="font-bold text-lg leading-snug text-gray-900 group-hover:text-red-600 transition mb-2">
-            <a href="{% url 'blog:detail' slug=post.slug %}">{{ post.title|truncatechars:60 }}</a>
-        </h3>
-        <p class="text-gray-600 text-sm leading-relaxed">{{ post.short_description|truncatechars:90 }}</p>
-    </article>
-    {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for post in latest_posts %}
+        <article class="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700 flex flex-col h-full">
+            <a href="{% url 'blog:detail' slug=post.slug %}" class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
+                {% if post.featured_image %}
+                    <img 
+                        src="{{ post.featured_image.url }}" 
+                        alt="{{ post.featured_image_alt }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    >
+                {% else %}
+                    <img 
+                        src="{% static 'images/default.png' %}" 
+                        alt="Default"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    >
+                {% endif %}
+            </a>
+
+            <div class="p-5 flex-grow flex flex-col">
+                <div class="mb-3">
+                    <span class="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold px-2.5 py-1 rounded">
+                        {{ post.category.name }}
+                    </span>
+                </div>
+
+                <h3 class="text-base md:text-lg font-bold leading-snug text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-200 mb-3 flex-grow">
+                    <a href="{% url 'blog:detail' slug=post.slug %}">{{ post.title }}</a>
+                </h3>
+
+                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
+                    {{ post.short_description|truncatechars:100 }}
+                </p>
+
+                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500 font-medium pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <span>{{ post.author_name }}</span>
+                    <span>{{ post.published_at|date:"d M" }}</span>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav class="mt-12 flex justify-center items-center gap-2">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200" aria-label="First page">
+                « প্রথম
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200">
+                ← পূর্ববর্তী
+            </a>
+        {% endif %}
+        
+        <span class="px-4 py-2 rounded-md bg-red-600 dark:bg-red-700 text-white font-bold text-sm">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200">
+                পরবর্তী →
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200" aria-label="Last page">
+                শেষ »
+            </a>
+        {% endif %}
+    </nav>
+    {% endif %}
 </div>
+
+{# Advertisement #}
+{% if ad_home_right %}
+<div class="mb-12">
+    <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-800">
+        {% include 'blog/includes/ad_renderer.html' with ad=ad_home_right %}
+    </div>
+</div>
+{% endif %}
 
 {% endblock %}

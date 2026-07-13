@@ -1,15 +1,20 @@
-from django.db.models import Q
+from django.db.models import Q, F
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django.views.generic import DetailView, ListView
 from .models import Advertisement, Blog, Category, Tag
+from .signals import increment_blog_views
 
 
 # Helpers
 
 def _get_active_ads(*positions):
+    """
+    Fetch active advertisements for given positions.
+    Only one active ad per position (enforced by model constraint).
+    """
     qs = Advertisement.objects.filter(
         position__in=positions,
         is_active=True,
@@ -18,18 +23,22 @@ def _get_active_ads(*positions):
 
 
 def _published():
+    """Get queryset of published blog posts."""
     return Blog.objects.filter(status=Blog.StatusChoices.PUBLISHED)
 
 
 def _list_qs():
-    """Shared optimised queryset for all list views."""
+    """
+    Shared optimised queryset for all list views.
+    Includes all necessary related data with minimal queries.
+    """
     return (
         _published()
         .select_related("category", "author")
         .prefetch_related("tags")
         .only(
             "title", "slug", "short_description", "featured_image",
-            "featured_image_alt", "published_at", "reading_time",
+            "featured_image_alt", "published_at", "reading_time", "views",
             "is_featured", "is_breaking_news", "author_name",
             "category__name", "category__slug",
             "author__first_name", "author__last_name", "author__username",
@@ -73,7 +82,6 @@ class HomeView(ListView):
 
 # 2. Blog Detail View
 
-
 class BlogDetailView(DetailView):
     model = Blog
     template_name = "blog/detail.html"
@@ -86,9 +94,24 @@ class BlogDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
-        # Atomic view increment — no race condition
-        Blog.objects.filter(pk=obj.pk).update(views=__import__('django.db.models', fromlist=['F']).F('views') + 1)
+        
+        # Track view atomically with IP-based duplicate prevention
+        client_ip = self.get_client_ip()
+        increment_blog_views(obj.pk, client_ip)
+        
         return obj
+
+    def get_client_ip(self):
+        """
+        Extract client IP from request.
+        Handles X-Forwarded-For for proxies and load balancers.
+        """
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = self.request.META.get('REMOTE_ADDR', '127.0.0.1')
+        return ip
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -98,7 +121,10 @@ class BlogDetailView(DetailView):
             _published()
             .filter(category=post.category)
             .exclude(pk=post.pk)
-            .only("title", "slug", "featured_image", "featured_image_alt", "published_at", "reading_time")
+            .only(
+                "title", "slug", "featured_image", "featured_image_alt", 
+                "published_at", "reading_time", "views"
+            )
             .order_by("-published_at")[:4]
         )
 
@@ -114,7 +140,6 @@ class BlogDetailView(DetailView):
 
 
 # 3. Category Post List View
-
 
 class CategoryPostListView(ListView):
     model = Blog
@@ -195,8 +220,8 @@ class SearchView(ListView):
         context["result_count"] = self.get_queryset().count()
         return context
 
-# 6. Featured Posts View
 
+# 6. Featured Posts View
 
 class FeaturedPostListView(ListView):
     model = Blog

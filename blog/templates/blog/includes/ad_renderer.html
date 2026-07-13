@@ -1,0 +1,48 @@
+{# Advertisement Renderer - Safely renders AdSense and custom ad codes #}
+{% if ad %}
+    <div class="ad-container ad-{{ ad.position }}" data-ad-name="{{ ad.name }}">
+        {% if ad.adsense_code %}
+            {# Check if it's AdSense code (contains "adsbygoogle") #}
+            {% if "adsbygoogle" in ad.adsense_code %}
+                <div class="adsense-wrapper">
+                    {{ ad.adsense_code|safe }}
+                    <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            {% else %}
+                {# Custom HTML/JS advertisement #}
+                <div class="custom-ad-wrapper">
+                    {{ ad.adsense_code|safe }}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <style>
+        .ad-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .adsense-wrapper,
+        .custom-ad-wrapper {
+            width: 100%;
+            max-width: 728px;
+        }
+        
+        @media (max-width: 768px) {
+            .adsense-wrapper,
+            .custom-ad-wrapper {
+                max-width: 320px;
+            }
+        }
+        
+        /* Ensure ads don't break layout */
+        .ad-container * {
+            box-sizing: border-box;
+        }
+    </style>
+{% endif %}

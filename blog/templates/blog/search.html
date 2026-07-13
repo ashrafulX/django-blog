@@ -1,39 +1,133 @@
 {% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}সার্চ: {{ query }} - GblNews{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <div class="border-b-2 border-black pb-3 mb-6 flex justify-between items-end">
-        <h1 class="text-3xl font-bold text-gray-900">
-            {% if category %}ক্যাটাগরি: <span class="text-red-600">{{ category.name }}</span>{% endif %}
-            {% if query %}সার্চ রেজাল্ট: <span class="text-red-600">"{{ query }}"</span>{% endif %}
-        </h1>
-        <span class="text-gray-500 text-sm">{{ page_obj.paginator.count }} টি ফলাফল পাওয়া গেছে</span>
+
+<div class="mb-10">
+    {# Search Header #}
+    <div class="mb-10">
+        <nav class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4 flex items-center gap-2" aria-label="Breadcrumb">
+            <a href="{% url 'blog:home' %}" class="hover:text-red-600 dark:hover:text-red-500 transition-colors duration-200">হোম</a>
+            <span class="text-gray-300 dark:text-gray-600">/</span>
+            <span class="text-red-600 dark:text-red-500">সার্চ ফলাফল</span>
+        </nav>
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">
+                    সার্চ ফলাফল
+                </h1>
+                <p class="text-lg text-gray-700 dark:text-gray-300">
+                    "<span class="font-bold text-red-600 dark:text-red-500">{{ query }}</span>" এর জন্য 
+                    <span class="font-bold text-red-600 dark:text-red-500">{{ result_count }}</span> টি সংবাদ পাওয়া গেছে।
+                </p>
+            </div>
+        </div>
+
+        <div class="border-b-2 border-red-600 dark:border-red-500 mt-4"></div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    {# Search Results Grid #}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {% for post in posts %}
-            {% include 'blog/includes/post_card.html' with post=post %}
-        {% empty %}
-            <div class="col-span-full py-10 text-center text-gray-500">
-                কোনো সংবাদ পাওয়া যায়নি।
+        <article class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col h-full">
+            <a href="{% url 'blog:detail' slug=post.slug %}" class="block overflow-hidden relative h-48 bg-gray-200 dark:bg-gray-700">
+                {% if post.featured_image %}
+                    <img 
+                        src="{{ post.featured_image.url }}" 
+                        alt="{{ post.featured_image_alt|default:post.title }}"
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    >
+                {% else %}
+                    <img 
+                        src="{% static 'images/default.png' %}" 
+                        alt="Default"
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    >
+                {% endif %}
+                
+                {# Category Badge #}
+                <div class="absolute top-3 right-3 bg-red-600 dark:bg-red-700 text-white px-2 py-1 rounded text-xs font-bold">
+                    {{ post.category.name }}
+                </div>
+            </a>
+
+            <div class="p-5 flex-grow flex flex-col">
+                <h3 class="text-base md:text-lg font-bold leading-snug text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-200 mb-2 flex-grow">
+                    <a href="{% url 'blog:detail' slug=post.slug %}">{{ post.title }}</a>
+                </h3>
+
+                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
+                    {{ post.short_description|truncatechars:100 }}
+                </p>
+
+                <div class="flex flex-wrap items-center justify-between text-xs text-gray-500 dark:text-gray-500 font-medium pt-4 border-t border-gray-100 dark:border-gray-700 gap-2">
+                    <span>{{ post.author_name }}</span>
+                    <span>{{ post.published_at|date:"d M, Y" }}</span>
+                </div>
             </div>
+        </article>
+        {% empty %}
+        <div class="col-span-full py-16 text-center">
+            <svg class="w-20 h-20 mx-auto text-gray-300 dark:text-gray-600 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <p class="text-gray-600 dark:text-gray-400 text-lg font-semibold mb-2">কোনো ফলাফল পাওয়া যায়নি</p>
+            <p class="text-gray-500 dark:text-gray-500 text-sm mb-6">
+                আপনার সার্চ ক্যোয়ারির সাথে মিলে এমন কোনো সংবাদ খুঁজে পাওয়া যায়নি।
+            </p>
+            <a href="{% url 'blog:home' %}" class="inline-flex items-center gap-2 bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                হোমে ফিরে যান
+            </a>
+        </div>
         {% endfor %}
     </div>
 
+    {# Pagination #}
     {% if is_paginated %}
-        <div class="mt-10 flex justify-center">
-            <nav class="flex space-x-2">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-2 border rounded hover:bg-gray-100">পূর্ববর্তী</a>
-                {% endif %}
-                
-                <span class="px-4 py-2 border rounded bg-red-600 text-white font-bold">{{ page_obj.number }}</span>
-                
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-2 border rounded hover:bg-gray-100">পরবর্তী</a>
-                {% endif %}
-            </nav>
-        </div>
+    <nav class="flex justify-center items-center gap-2 pt-8 border-t border-gray-200 dark:border-gray-700" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+            <a 
+                href="?q={{ query }}&page=1" 
+                class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200"
+                aria-label="First page"
+            >
+                « প্রথম
+            </a>
+            <a 
+                href="?q={{ query }}&page={{ page_obj.previous_page_number }}" 
+                class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200"
+            >
+                ← পূর্ববর্তী
+            </a>
+        {% endif %}
+        
+        <span class="px-4 py-2 rounded-md bg-red-600 dark:bg-red-700 text-white font-bold text-sm">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a 
+                href="?q={{ query }}&page={{ page_obj.next_page_number }}" 
+                class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200"
+            >
+                পরবর্তী →
+            </a>
+            <a 
+                href="?q={{ query }}&page={{ page_obj.paginator.num_pages }}" 
+                class="px-3 py-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold text-sm transition-colors duration-200"
+                aria-label="Last page"
+            >
+                শেষ »
+            </a>
+        {% endif %}
+    </nav>
     {% endif %}
 </div>
+
 {% endblock %}
