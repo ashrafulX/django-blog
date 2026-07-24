@@ -22,7 +22,29 @@
     
     <title>{% block title %}GblNews - বাংলা সংবাদ পোর্টাল{% endblock %}</title>
     
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- REQUIRED CONFIG: Forces Tailwind to listen to the "dark" class instead of system preference -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', 
+        }
+    </script>
+
+    <!-- PREVENT FLICKERING: Check local storage before page renders -->
+    <script>
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            // Set default to disabled if no preference exists (forces light mode default)
+            if (localStorage.getItem('darkMode') === null) {
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -259,28 +281,12 @@
         </div>
     </footer>
 
-    <!-- Dark Mode Script - FIXED: Light Mode Default, No System Preference -->
+    <!-- Cleaned up Dark Mode Toggle Script -->
     <script>
-        function initDarkMode() {
+        document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const html = document.documentElement;
             
-            // CRITICAL FIX: Check only localStorage, never use system preference
-            const darkModePreference = localStorage.getItem('darkMode');
-            
-            // Apply preference: default to LIGHT MODE if not set
-            if (darkModePreference === 'enabled') {
-                html.classList.add('dark');
-            } else {
-                // Always light mode if not explicitly set to 'enabled'
-                html.classList.remove('dark');
-                // Set default preference to disabled for consistency
-                if (darkModePreference === null) {
-                    localStorage.setItem('darkMode', 'disabled');
-                }
-            }
-            
-            // Toggle button listener
             if (darkModeToggle) {
                 darkModeToggle.addEventListener('click', function() {
                     html.classList.toggle('dark');
@@ -288,14 +294,7 @@
                     localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
                 });
             }
-        }
-        
-        // Initialize on DOM ready - PREVENT FLICKERING
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDarkMode);
-        } else {
-            initDarkMode();
-        }
+        });
     </script>
 
     {% block extra_js %}{% endblock %}

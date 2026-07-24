@@ -52,7 +52,12 @@ class Category(models.Model):
             models.Index(fields=["slug", "is_active"]),
         ]
 
-   
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # Bengali slug সরাসরি ব্যবহার করুন
+            base_slug = self.name.lower().replace(' ', '-')
+            self.slug = base_slug
+        super().save(*args, **kwargs)
     # Validation
    
     def clean(self):
@@ -276,9 +281,8 @@ class Blog(models.Model):
             word_count = len(strip_tags(self.content).split())
             self.reading_time = max(1, math.ceil(word_count / 200.0))
 
-        # 4. Unique slug generation with length-overflow guard.
         if not self.slug:
-            base_slug = slugify(self.title) or "post"
+            base_slug = self.title.lower().replace(' ', '-') or "post"
             max_length = self._meta.get_field("slug").max_length
             base_slug = base_slug[: max_length - 10]
             slug = base_slug
@@ -287,6 +291,7 @@ class Blog(models.Model):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
+
 
         super().save(*args, **kwargs)
 
